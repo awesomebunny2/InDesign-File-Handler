@@ -1,0 +1,10 @@
+{
+    "pathToActiveFolder":"/Users/mattshark/Library/CloudStorage/OneDrive-SharedLibraries-MailShark/Prepress Team - Documents/General/Artist Folders/Matt's_Files",
+    "pathToTemplates":"/Users/mattshark/Documents/2023 Mail Shark Templates",
+    "pdfPresets": {
+        "print": "Mail Shark Print 2023",
+        "proof": "Mail Shark Proof 2023",
+        "hq": "[High Quality Print]"
+    },
+    "firstTimeUse":true
+}

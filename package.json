@@ -1,0 +1,17 @@
+{
+  "name": "com.mailshark.playground",
+  "version": "1.0.0",
+  "description": "A playground for adults",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Matt Calvert",
+  "license": "ISC",
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "glob": "^8.1.0",
+    "https": "^1.0.0",
+    "path": "^0.12.7"
+  }
+}
