@@ -14,6 +14,8 @@
     let globalSettings = [];
     let templateData = [];
     let productTemplates = []; 
+    let runCreateDir = false;
+    let runOpenNameSaveIndd = false;
 
 
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
@@ -190,17 +192,24 @@
             //#region GET PRODUCT TEMPLATE PATH ------------------------------------------------------------------------------------------------------
 
                 let index;
+
+                //loops through the product-templates.json data that has been stored until it find a system_name variable that matches the formData.product, then it returns the index of the array of said match
                 for (let i = 0; i < productTemplates.length; i++) {
                     if (productTemplates[i].system_name == formData.product) {
                         index = i;
                     }
                 };
 
+                //name of the product in .net
                 const productSystemName = productTemplates[index].system_name;
+
+                //name of the product in the template file names (minus the year and file extension)
                 const productTemplateName = productTemplates[index].template_name;
+
+                //name of the product as it will be seen in the created directories
                 const productFolderName = productTemplates[index].directory_name;
 
-
+                //name of the product in the template file names including the year and file extension
                 let fullTemplateName = `${productTemplateName} ${templateYear}.indt`;
 
                 if (productTemplateName == "SHIRT") {
@@ -225,11 +234,35 @@
                             }
                         }
                     });
-                } else {
-
+                } else if (productTemplateName) { //if productTemplateName has a value...
+                    typicalExecution (fullTemplateName, templateYear, productTemplateName, formData, year, month, productFolderName);
+                } 
+                else {
+                    //productTemplateName is undefined...
                 }
 
+                function typicalExecution (fullTemplateName, templateYear, productTemplateName, formData, year, month, productFolderName) {
 
+                    let createDirVariables = {
+                        var1: formData,
+                        var2: year,
+                        var3: month,
+                        var4: productFolderName,
+                    }
+
+                    let openNameSaveInddVariables = {
+                        
+
+                    }
+
+                    runCreateDir = true;
+                    runOpenNameSaveIndd = true;
+
+                    productTempPath(fullTemplateName, templateYear, productTemplateName, formData, runCreateDir, createDirVariables, runOpenNameSaveIndd, openNameSaveInddVariables);
+                    
+                }
+
+                /*
                 const productTemplateURL = `https://www.themailshark.com/prepress/ArtFileCreator/Templates/${fullTemplateName}`;
                 const templatePath = path.join(__dirname, "downloaded-templates", fullTemplateName);
 
@@ -350,6 +383,8 @@
                         };
                     };
                 });
+
+                */
 
             //#endregion -----------------------------------------------------------------------------------------------------------------------------
 
@@ -685,11 +720,19 @@
 
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
-/*
+
 
     //#region GET PRODUCT TEMPLATE PATH ------------------------------------------------------------------------------------------------------
 
-        async function productTempPath(fullTemplateName, templateYear, productTemplateName, formData) {
+        /**
+         * Downloads the proper template file and creates a path to it
+         * @param {String} fullTemplateName Name of the product template including the year and file extension
+         * @param {String} templateYear 4 digit year string grabbed from the template-year.txt file when a new template year is released
+         * @param {String} productTemplateName The name of the product template, grabbed from the product-templates.json
+         * @param {Object} formData Object containing the elements from the extension form submitted by the user
+         * @returns 
+         */
+        async function productTempPath(fullTemplateName, templateYear, productTemplateName, formData, runCreateDir, createDirVariables, runOpenNameSaveIndd, openNameSaveInddVariables) {
 
             const productTemplateURL = `https://www.themailshark.com/prepress/ArtFileCreator/Templates/${fullTemplateName}`;
             const templatePath = path.join(__dirname, "downloaded-templates", fullTemplateName);
@@ -713,15 +756,32 @@
 
             console.log(`The ${templateYear} ${productTemplateName} template file has successfully downloaded and given a local file path.`)
 
+            if (runCreateDir == true) {
+                if (runOpenNameSaveIndd == true) {
+                    createDirectory(createDirVariables.var1, createDirVariables.var2, createDirVariables.var3, createDirVariables.var4, runOpenNameSaveIndd, openNameSaveInddVariables);
+                } else {
+                    createDirectory(createDirVariables.var1, createDirVariables.var2, createDirVariables.var3, createDirVariables.var4, false, undefined);
+                }
+   
+                console.log("a hole in my soup bowl");
+            }
+
         }
 
 
     //#endregion -----------------------------------------------------------------------------------------------------------------------------
 
 
-    //#region GET AND CREATE PROJECT DIRECTORY -----------------------------------------------------------------------------------------------
+    //#region GET AND CREATE PROJECT DIRECTORY & INDESIGN FILE NAME/PATH -----------------------------------------------------------------------------------------------
 
-        function createDirectory(formData, year, month, productFolderName, globalSettings) {
+        /**
+         * Creates directory names, indd file name, and full indd file path
+         * @param {Object} formData Object containing the elements from the extension form submitted by the user
+         * @param {Number} year 4 digit year number to be used in the naming of the directories
+         * @param {Number} month 2 digit month number to be used in the naming of the directories
+         * @param {String} productFolderName The name of the product as it will be seen in the directories
+         */
+        function createDirectory(formData, year, month, productFolderName, runOpenNameSaveIndd, openNameSaveInddVariables) {
 
             //first project folder in user's active folder 
             let parentDir = `${(formData.client).replace(' ', '-')}_${(formData.location).replace(' ', '-')}_${formData.clientCode}`;
@@ -746,6 +806,16 @@
 
             //#endregion -------------------------------------------------------------------------------------------------------------------------
 
+            // if (nextFunction !== undefined) {
+            //     nextFunction;
+            // }
+
+            if (runCreateDir == true) {
+                openNameSaveIndd(createDirVariables.var1, createDirVariables.var2, createDirVariables.var3, createDirVariables.var4, false, undefined);
+   
+                console.log("a hole in my soup bowl");
+            }
+
         };
 
     //#endregion -----------------------------------------------------------------------------------------------------------------------------
@@ -754,7 +824,17 @@
 
     //#region OPEN, NAME, AND SAVE INDESIGN FILE FROM TEMPLATE -------------------------------------------------------------------------------
 
-        function openNameSaveIndd(inddFilePath, templatePath, year, month, productFolderName, globalSettings, formData, inddFileName) {
+        /**
+         * Opens the template file, makes the directories in the active folder defined in globalSettings, and saves the indesign file there with the proper name (includes some error handling for different invlaid product variables and directory names)
+         * @param {String} inddFilePath Path to save the indd file in
+         * @param {String} templatePath Path to open the template file from
+         * @param {Number} year 4 digit year number to be used in the naming of the directories
+         * @param {Number} month 2 digit month number to be used in the naming of the directories
+         * @param {String} productFolderName The name of the product as it will be seen in the directories
+         * @param {Object} formData Object containing the elements from the extension form submitted by the user
+         * @param {String} inddFileName Name of the indesign file to be saved
+         */
+        function openNameSaveIndd(inddFilePath, templatePath, year, month, productFolderName, formData, inddFileName) {
 
             let doesExist = fs.existsSync(inddFilePath); //if indesign file already exists in path, returns true
             let secondTime = false;
@@ -826,7 +906,5 @@
         };
 
     //#endregion -----------------------------------------------------------------------------------------------------------------------------
-
-    */
 
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
