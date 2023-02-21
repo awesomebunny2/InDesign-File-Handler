@@ -643,45 +643,47 @@
  
  
  
- /**
- * HELPER FUNCTIONS
- */
+ 
+ //#region HELPER FUNCTIONS --------------------------------------------------------------------------------------------------------------------------
+ 
+    //#region GET REMOTE FILE ------------------------------------------------------------------------------------------------------------------------
 
-/**
- * getRemoteFile(url, outputPath)
- * @param {string} url  Path the file to download
- * @param {string} outputPath Path to the downloaded file
- * @return new Promise
- */
-async function getRemoteFile (url, outputPath) {
-    return new Promise ((resolve, reject) => {
+        /**
+         * getRemoteFile(url, outputPath)
+         * @param {string} url  Path the file to download
+         * @param {string} outputPath Path to the downloaded file
+         * @return new Promise
+         */
+        async function getRemoteFile (url, outputPath) {
+            return new Promise ((resolve, reject) => {
 
-        https.get(url,(res) => {
+                https.get(url,(res) => {
 
-            // console.log(res);
+                    // console.log(res);
 
-            if (res.statusCode === 404) {
-                reject("Page not found.")
-            }
+                    if (res.statusCode === 404) {
+                        reject("Page not found.")
+                    }
 
-            // Image will be stored at this path
-            const filePath = fs.createWriteStream(outputPath);
-            res.pipe(filePath);
-            filePath.on('finish',() => {
-                filePath.close();
-                // console.log('Download Completed'); 
-                resolve();
-            });
-        })
-        // .on("error", () => {
-        //     console.log("I am being rejected");
-        //     reject(new Error("REJECTED"));
-        // });
+                    // Image will be stored at this path
+                    const filePath = fs.createWriteStream(outputPath);
+                    res.pipe(filePath);
+                    filePath.on('finish',() => {
+                        filePath.close();
+                        // console.log('Download Completed'); 
+                        resolve();
+                    });
+                })
+                // .on("error", () => {
+                //     console.log("I am being rejected");
+                //     reject(new Error("REJECTED"));
+                // });
 
 
-    })
-}
+            })
+        }
 
+    //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
 /*
 
@@ -826,3 +828,5 @@ async function getRemoteFile (url, outputPath) {
     //#endregion -----------------------------------------------------------------------------------------------------------------------------
 
     */
+
+//#endregion -----------------------------------------------------------------------------------------------------------------------------------------
