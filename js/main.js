@@ -16,6 +16,7 @@
     let productTemplates = []; 
     let runCreateDir = false;
     let runOpenNameSaveIndd = false;
+    let openTemplate = true;
 
 
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
@@ -214,7 +215,13 @@
 
                 if (productTemplateName == "SHIRT") {
                     console.log("About to show shirt dialog");
-                    await csInterface.evalScript(`showShirtDialog()`, (rtn, err) => {
+
+                    let inddInfo = createDirectory(formData, year, month, productFolderName);
+
+                    let doesExist = fs.existsSync(inddInfo.inddFilePath); //if indesign file already exists in path, returns true
+                    let secondTime = false;
+
+                    await csInterface.evalScript(`showShirtDialog("${inddInfo.inddFilePath}", "undefined", ${doesExist}, ${secondTime}, "false")`, (rtn, err) => {
                         if (err) {
                             console.log(err);
                             csInterface.evalScript(`alert("${err}")`, (rtn, err) => {
@@ -227,10 +234,18 @@
                                 return;
                             } else if (rtn == "Template file opened") {
                                 console.log("Template was chosen manually. Just need to create directory and save opened file with proper name");
+                                noOpeningTemplate (formData, year, month, productFolderName);
                                 return;
                             } else if (rtn == "New document created") {
-                                console.log("A dnew document was created. Just need to create directory and save file with proper name.");
+                                console.log("A new document was created. Just need to create directory and save file with proper name.");
+                                // noOpeningTemplate (formData, year, month, productFolderName);
                                 return;
+                            } else if (rtn == "save me later") {
+                                alert("WOWOWOOOWOODO")
+                                // Show dialog
+                                // Do you want to save this document?
+                                
+
                             }
                         }
                     });
@@ -241,26 +256,25 @@
                     //productTemplateName is undefined...
                 }
 
-                function typicalExecution (fullTemplateName, templateYear, productTemplateName, formData, year, month, productFolderName) {
+                async function typicalExecution (fullTemplateName, templateYear, productTemplateName, formData, year, month, productFolderName) {
 
-                    let createDirVariables = {
-                        var1: formData,
-                        var2: year,
-                        var3: month,
-                        var4: productFolderName,
-                    }
+                    let pathToTemplate = await productTempPath(fullTemplateName, templateYear, productTemplateName, formData);
 
-                    let openNameSaveInddVariables = {
-                        
+                    let inddInfo = createDirectory(formData, year, month, productFolderName);
 
-                    }
-
-                    runCreateDir = true;
-                    runOpenNameSaveIndd = true;
-
-                    productTempPath(fullTemplateName, templateYear, productTemplateName, formData, runCreateDir, createDirVariables, runOpenNameSaveIndd, openNameSaveInddVariables);
+                    openNameSaveIndd(inddInfo.inddFilePath, pathToTemplate, year, month, productFolderName, formData, inddInfo.inddFileName, inddInfo.parentDir, openTemplate);
                     
-                }
+                };
+
+
+
+                function noOpeningTemplate (formData, year, month, productFolderName) {
+                    let inddInfo = createDirectory(formData, year, month, productFolderName);
+
+                    openTemplate = false;
+
+                    openNameSaveIndd(inddInfo.inddFilePath, undefined, year, month, productFolderName, formData, inddInfo.inddFileName, inddInfo.parentDir, openTemplate);
+                };
 
                 /*
                 const productTemplateURL = `https://www.themailshark.com/prepress/ArtFileCreator/Templates/${fullTemplateName}`;
@@ -732,7 +746,7 @@
          * @param {Object} formData Object containing the elements from the extension form submitted by the user
          * @returns 
          */
-        async function productTempPath(fullTemplateName, templateYear, productTemplateName, formData, runCreateDir, createDirVariables, runOpenNameSaveIndd, openNameSaveInddVariables) {
+        async function productTempPath(fullTemplateName, templateYear, productTemplateName, formData) {
 
             const productTemplateURL = `https://www.themailshark.com/prepress/ArtFileCreator/Templates/${fullTemplateName}`;
             const templatePath = path.join(__dirname, "downloaded-templates", fullTemplateName);
@@ -756,15 +770,17 @@
 
             console.log(`The ${templateYear} ${productTemplateName} template file has successfully downloaded and given a local file path.`)
 
-            if (runCreateDir == true) {
-                if (runOpenNameSaveIndd == true) {
-                    createDirectory(createDirVariables.var1, createDirVariables.var2, createDirVariables.var3, createDirVariables.var4, runOpenNameSaveIndd, openNameSaveInddVariables);
-                } else {
-                    createDirectory(createDirVariables.var1, createDirVariables.var2, createDirVariables.var3, createDirVariables.var4, false, undefined);
-                }
+            // if (runCreateDir == true) {
+            //     if (runOpenNameSaveIndd == true) {
+            //         createDirectory(createDirVariables.var1, createDirVariables.var2, createDirVariables.var3, createDirVariables.var4, runOpenNameSaveIndd, openNameSaveInddVariables);
+            //     } else {
+            //         createDirectory(createDirVariables.var1, createDirVariables.var2, createDirVariables.var3, createDirVariables.var4, false, undefined);
+            //     }
    
-                console.log("a hole in my soup bowl");
-            }
+            //     console.log("a hole in my soup bowl");
+            // }
+
+            return templatePath;
 
         }
 
@@ -781,7 +797,7 @@
          * @param {Number} month 2 digit month number to be used in the naming of the directories
          * @param {String} productFolderName The name of the product as it will be seen in the directories
          */
-        function createDirectory(formData, year, month, productFolderName, runOpenNameSaveIndd, openNameSaveInddVariables) {
+        function createDirectory(formData, year, month, productFolderName) {
 
             //first project folder in user's active folder 
             let parentDir = `${(formData.client).replace(' ', '-')}_${(formData.location).replace(' ', '-')}_${formData.clientCode}`;
@@ -806,14 +822,10 @@
 
             //#endregion -------------------------------------------------------------------------------------------------------------------------
 
-            // if (nextFunction !== undefined) {
-            //     nextFunction;
-            // }
-
-            if (runCreateDir == true) {
-                openNameSaveIndd(createDirVariables.var1, createDirVariables.var2, createDirVariables.var3, createDirVariables.var4, false, undefined);
-   
-                console.log("a hole in my soup bowl");
+            return {
+                parentDir,
+                inddFileName,
+                inddFilePath
             }
 
         };
@@ -833,14 +845,15 @@
          * @param {String} productFolderName The name of the product as it will be seen in the directories
          * @param {Object} formData Object containing the elements from the extension form submitted by the user
          * @param {String} inddFileName Name of the indesign file to be saved
+         * @param {String} parentDir name of the first project folder in user's active folder
          */
-        function openNameSaveIndd(inddFilePath, templatePath, year, month, productFolderName, formData, inddFileName) {
+        function openNameSaveIndd(inddFilePath, templatePath, year, month, productFolderName, formData, inddFileName, parentDir, openTemplate) {
 
             let doesExist = fs.existsSync(inddFilePath); //if indesign file already exists in path, returns true
             let secondTime = false;
 
             //sends path variables for template file, name for indesign file, and if file path exists or not already to the hostscript
-            csInterface.evalScript(`openAndName("${inddFilePath}", "${templatePath}", ${doesExist}, ${secondTime})`, (rtn, err) => {
+            csInterface.evalScript(`openAndName("${inddFilePath}", "${templatePath}", ${doesExist}, ${secondTime}, ${openTemplate})`, (rtn, err) => {
                 if (err) {
                     console.log(err); //usually just says EvalScript error which is not helpful
                 } else {
@@ -850,7 +863,7 @@
                     //if the user was given a text prompt for a version in the jsx and they did not cancel out of it, this will pass ⬇
                     if (rtnValues[1] !== "null") {
 
-                            //#region IF DIRECOTRY ALREADY EXISTS... -------------------------------------------------------------------------------------
+                            //#region IF DIRECTORY ALREADY EXISTS... -------------------------------------------------------------------------------------
 
                             //#region CREATE NEW SUB DIRECTORY, UPDATE PROJECT DIRECTORY, AND CREATE FULL UPDATED DIRECTORY --------------------------
 
@@ -881,7 +894,7 @@
 
                                 secondTime = true;
 
-                                csInterface.evalScript(`openAndName("${inddFilePath}", "${templatePath}", ${doesExist}, ${secondTime})`, (rtn, err) => {
+                                csInterface.evalScript(`openAndName("${inddFilePath}", "${templatePath}", ${doesExist}, ${secondTime}, ${openTemplate})`, (rtn, err) => {
                                     if (err) {
                                         console.log(err); //usually just says EvalScript error which is not helpful
                                     } else {
