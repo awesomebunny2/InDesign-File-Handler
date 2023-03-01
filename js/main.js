@@ -17,6 +17,7 @@
     let runCreateDir = false;
     let runOpenNameSaveIndd = false;
     let openTemplate = true;
+    let handler = null;
 
 
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
@@ -131,7 +132,17 @@
          * Get Form Data when Create button is clicked and creates project template file and directory and saves
          */    
         $("#input_form").submit(async function(event) {
+
             event.preventDefault(); //prevents defaults from executing
+
+            //#region GLOBAL (FUNCTION) VARIABLES ----------------------------------------------------------------------------------------------------
+
+                let title;
+                let description1;
+                let description2;
+                let cta;
+
+            //#endregion -----------------------------------------------------------------------------------------------------------------------------
 
             //#region GET DATE VARIABLES -------------------------------------------------------------------------------------------------------------
                 let time = new Date(Date.now());
@@ -190,6 +201,20 @@
 
             //#endregion -----------------------------------------------------------------------------------------------------------------------------
 
+            //#region CREATE BLANK DOCUMENT EVENT HANDLER --------------------------------------------------------------------------------------------
+
+                var handleOpen = function (event) {
+                    // console.log("Event type:", event.type, "Data:", event.data );
+                    if (handler == "CREATE") {
+                        noOpeningTemplate (formData, year, month, productFolderName);
+                        console.log("handleOpen was triggered and run");
+                    };
+                    // alert("This should now have a name");
+                    csInterface.removeEventListener( 'documentAfterActivate', handleOpen);
+                };
+
+            //#endregion -----------------------------------------------------------------------------------------------------------------------------
+
             //#region GET PRODUCT TEMPLATE PATH ------------------------------------------------------------------------------------------------------
 
                 let index;
@@ -199,6 +224,18 @@
                     if (productTemplates[i].system_name == formData.product) {
                         index = i;
                     }
+                };
+
+                if (!index) {
+                    csInterface.evalScript(`alert("Something went wrong. It is most likely related to the product line feild. Please make sure the product in the Product Feild is a registered product in .net")`, (rtn, err) => {
+                        if (err) {
+                            console.log(err);
+                            alert(err);
+                            return;
+                        }
+                        return;
+                    });
+                    return;
                 };
 
                 //name of the product in .net
@@ -214,14 +251,17 @@
                 let fullTemplateName = `${productTemplateName} ${templateYear}.indt`;
 
                 if (productTemplateName == "SHIRT") {
+
+                    title = "T-Shirt Template Unavailable";
+                    description1 = "The project you submitted is categorized as a T-Shirt product.";
+                    description2 = "Currently, there are no T-Shirt templates available.";
+                    cta = "Would you like to choose a template to work from?";
+
                     console.log("About to show shirt dialog");
 
-                    let inddInfo = createDirectory(formData, year, month, productFolderName);
+                    csInterface.addEventListener('documentAfterActivate', handleOpen);
 
-                    let doesExist = fs.existsSync(inddInfo.inddFilePath); //if indesign file already exists in path, returns true
-                    let secondTime = false;
-
-                    await csInterface.evalScript(`showShirtDialog("${inddInfo.inddFilePath}", "undefined", ${doesExist}, ${secondTime}, "false")`, (rtn, err) => {
+                    await csInterface.evalScript(`showShirtDialog(${title}, ${description1}, ${description2}, ${cta})`, (rtn, err) => {
                         if (err) {
                             console.log(err);
                             csInterface.evalScript(`alert("${err}")`, (rtn, err) => {
@@ -233,172 +273,29 @@
                                 console.log("User cancelled. Exiting...")
                                 return;
                             } else if (rtn == "Template file opened") {
-                                console.log("Template was chosen manually. Just need to create directory and save opened file with proper name");
+                                console.log("Template was chosen manually.");
                                 noOpeningTemplate (formData, year, month, productFolderName);
                                 return;
                             } else if (rtn == "New document created") {
-                                console.log("A new document was created. Just need to create directory and save file with proper name.");
-                                // noOpeningTemplate (formData, year, month, productFolderName);
+                                console.log("Create a new document was chosen.");
+                                handler = "CREATE";
+                                //the handleOpen event handler will trigger once the user submits the creat document dialog to run the noOpeningTemaplte function
                                 return;
-                            } else if (rtn == "save me later") {
-                                alert("WOWOWOOOWOODO")
-                                // Show dialog
-                                // Do you want to save this document?
-                                
-
+                            } else {
+                                alert("Something went terribly wrong...");
                             }
                         }
                     });
                 } else if (productTemplateName) { //if productTemplateName has a value...
+
+                    openTemplate = true;
+
                     typicalExecution (fullTemplateName, templateYear, productTemplateName, formData, year, month, productFolderName);
                 } 
                 else {
                     //productTemplateName is undefined...
-                }
-
-                async function typicalExecution (fullTemplateName, templateYear, productTemplateName, formData, year, month, productFolderName) {
-
-                    let pathToTemplate = await productTempPath(fullTemplateName, templateYear, productTemplateName, formData);
-
-                    let inddInfo = createDirectory(formData, year, month, productFolderName);
-
-                    openNameSaveIndd(inddInfo.inddFilePath, pathToTemplate, year, month, productFolderName, formData, inddInfo.inddFileName, inddInfo.parentDir, openTemplate);
-                    
+                    alert("idk how to hit this....if you are seeing this remember what you did to trigger it!")
                 };
-
-
-
-                function noOpeningTemplate (formData, year, month, productFolderName) {
-                    let inddInfo = createDirectory(formData, year, month, productFolderName);
-
-                    openTemplate = false;
-
-                    openNameSaveIndd(inddInfo.inddFilePath, undefined, year, month, productFolderName, formData, inddInfo.inddFileName, inddInfo.parentDir, openTemplate);
-                };
-
-                /*
-                const productTemplateURL = `https://www.themailshark.com/prepress/ArtFileCreator/Templates/${fullTemplateName}`;
-                const templatePath = path.join(__dirname, "downloaded-templates", fullTemplateName);
-
-                console.log(templatePath);
-
-                let lePromise = true;
-                await getRemoteFile(productTemplateURL, templatePath)
-                    .catch(err => {
-                        // 404?
-                        console.log(err)
-                        lePromise = false;
-                    }) // Wait for the download to finish
-
-                if (lePromise == false) {
-                    console.log("The requested template file does not exist. Exiting...");
-                    csInterface.evalScript(`alert("The requested template for ${formData.product} does not exist in the template files. Please change to another product.")`, (rtn, err) => {
-                    });
-                    return;
-                };
-
-                console.log(`The ${templateYear} ${productTemplateName} template file has successfully downloaded and given a local file path.`)
-
-
-            //#endregion -----------------------------------------------------------------------------------------------------------------------------
-
-            //#region GET AND CREATE PROJECT DIRECTORY -----------------------------------------------------------------------------------------------
-
-                //first project folder in user's active folder 
-                let parentDir = `${(formData.client).replace(' ', '-')}_${(formData.location).replace(' ', '-')}_${formData.clientCode}`;
-
-                //sub folder in project folder created based on date and product
-                let subDir = `${year}-${month}_${productFolderName}`
-
-                //creates a system agnostic path in the user defined active folder consisting of the parentDir all the way down to the Links folder
-                let dir = path.join(globalSettings.pathToActiveFolder, parentDir, subDir, "Links");
-
-                //if dir path doesn't already exist, create it!
-                if (!fs.existsSync(dir)){
-                    fs.mkdirSync(dir, { recursive: true });
-                };
-
-            //#endregion -----------------------------------------------------------------------------------------------------------------------------
-
-            //#region GET PATH TO AND NAME FOR INDESIGN FILE -------------------------------------------------------------------------------------
-
-                //name of the indesign file
-                let inddFileName = `${year}-${month}_${(formData.client).replace(' ', '-')}_${(formData.location).replace(' ', '-')}_${productFolderName}.indd`;
-
-                let inddFilePath = path.join(globalSettings.pathToActiveFolder, parentDir, subDir, inddFileName);
-
-            //#endregion -------------------------------------------------------------------------------------------------------------------------
-
-            //#region OPEN, NAME, AND SAVE INDESIGN FILE FROM TEMPLATE -------------------------------------------------------------------------------
-
-                let doesExist = fs.existsSync(inddFilePath); //if indesign file already exists in path, returns true
-                let secondTime = false;
-
-                //sends path variables for template file, name for indesign file, and if file path exists or not already to the hostscript
-                csInterface.evalScript(`openAndName("${inddFilePath}", "${templatePath}", ${doesExist}, ${secondTime})`, (rtn, err) => {
-                    if (err) {
-                        console.log(err); //usually just says EvalScript error which is not helpful
-                    } else {
-                        //since I can only communicate from the jsx to here via strings, if I want to send multiple variables back I combine them into a single string separated by <0.o!> and then when it is over here I just split the string apart from said divider. 
-                        let rtnValues = rtn.split("<0.o!>");
-
-                        //if the user was given a text prompt for a version in the jsx and they did not cancel out of it, this will pass ⬇
-                        if (rtnValues[1] !== "null") {
-
-                             //#region IF DIRECOTRY ALREADY EXISTS... -------------------------------------------------------------------------------------
-
-                                //#region CREATE NEW SUB DIRECTORY, UPDATE PROJECT DIRECTORY, AND CREATE FULL UPDATED DIRECTORY --------------------------
-
-                                    let newSubDir = `${year}-${month}_${productFolderName}-${rtnValues[1]}`;
-
-                                    //creates a system agnostic path in the user defined active folder consisting of the parentDir all the way down to the Links folder
-                                    let dir = path.join(globalSettings.pathToActiveFolder, parentDir, newSubDir, "Links");
-
-                                    //if dir path doesn't already exist, create it!
-                                    if (!fs.existsSync(dir)){
-                                        fs.mkdirSync(dir, { recursive: true });
-                                    };
-
-                                //#endregion -------------------------------------------------------------------------------------------------------------
-
-                                //#region GET UPDATED PATH TO AND NAME FOR INDESIGN FILE -----------------------------------------------------------------
-
-                                    //name of the indesign file
-                                    inddFileName = `${year}-${month}_${(formData.client).replace(' ', '-')}_${(formData.location).replace(' ', '-')}_${productFolderName}-${rtnValues[1]}.indd`;
-
-                                    inddFilePath = path.join(globalSettings.pathToActiveFolder, parentDir, newSubDir, inddFileName);
-
-                                //#endregion -------------------------------------------------------------------------------------------------------------
-
-                                //#region OPEN, NAME, AND SAVE UPDATED INDESIGN FILE FROM TEMPLATE -------------------------------------------------------
-
-                                    let doesExist = fs.existsSync(inddFilePath); //if indesign file already exists in path, returns true
-
-                                    secondTime = true;
-
-                                    csInterface.evalScript(`openAndName("${inddFilePath}", "${templatePath}", ${doesExist}, ${secondTime})`, (rtn, err) => {
-                                        if (err) {
-                                            console.log(err); //usually just says EvalScript error which is not helpful
-                                        } else {
-                                            let newRtnValues = rtn.split("<0.o!>");
-                                            console.log(newRtnValues[0]); 
-                                        };
-                                    });
-
-                                    //At this point, if the new sub directory is still already existing, rather than loop through the process again the user is just alerted to get their crap together and the function ends. Form data is not erased however, so the user can immediately try again if they desire to do so.
-
-                                //#endregion -------------------------------------------------------------------------------------------------------------
-                        
-                            //#endregion -------------------------------------------------------------------------------------------------------------
-                        } else {
-                            //should print to the console the desired results!
-                            //The [0] position should alwasy be the message, and [1] should be the returned textPrompt or "null"
-                            console.log(rtnValues[0]);
-                        };
-                    };
-                });
-
-                */
 
             //#endregion -----------------------------------------------------------------------------------------------------------------------------
 
@@ -735,6 +632,27 @@
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
 
+    async function typicalExecution (fullTemplateName, templateYear, productTemplateName, formData, year, month, productFolderName) {
+
+        let pathToTemplate = await productTempPath(fullTemplateName, templateYear, productTemplateName, formData);
+
+        let inddInfo = createDirectory(formData, year, month, productFolderName);
+
+        openNameSaveIndd(inddInfo.inddFilePath, pathToTemplate, year, month, productFolderName, formData, inddInfo.inddFileName, inddInfo.parentDir, openTemplate);
+        
+    };
+
+
+
+    function noOpeningTemplate (formData, year, month, productFolderName) {
+        let inddInfo = createDirectory(formData, year, month, productFolderName);
+
+        openTemplate = false;
+
+        openNameSaveIndd(inddInfo.inddFilePath, undefined, year, month, productFolderName, formData, inddInfo.inddFileName, inddInfo.parentDir, openTemplate);
+    };
+
+
 
     //#region GET PRODUCT TEMPLATE PATH ------------------------------------------------------------------------------------------------------
 
@@ -751,7 +669,7 @@
             const productTemplateURL = `https://www.themailshark.com/prepress/ArtFileCreator/Templates/${fullTemplateName}`;
             const templatePath = path.join(__dirname, "downloaded-templates", fullTemplateName);
 
-            console.log(templatePath);
+            // console.log(templatePath);
 
             let lePromise = true;
             await getRemoteFile(productTemplateURL, templatePath)
@@ -799,8 +717,14 @@
          */
         function createDirectory(formData, year, month, productFolderName) {
 
-            //first project folder in user's active folder 
-            let parentDir = `${(formData.client).replace(' ', '-')}_${(formData.location).replace(' ', '-')}_${formData.clientCode}`;
+            let parentDir;
+            if (formData.location == "") {
+                //first project folder in user's active folder 
+                parentDir = `${(formData.client).replace(' ', '-')}_${formData.clientCode}`;
+            } else {
+                //first project folder in user's active folder 
+                parentDir = `${(formData.client).replace(' ', '-')}_${(formData.location).replace(' ', '-')}_${formData.clientCode}`;
+            }
 
             //sub folder in project folder created based on date and product
             let subDir = `${year}-${month}_${productFolderName}`
@@ -815,8 +739,14 @@
 
             //#region GET PATH TO AND NAME FOR INDESIGN FILE -------------------------------------------------------------------------------------
 
+            let inddFileName;
+            if (formData.location == "") {
                 //name of the indesign file
-                let inddFileName = `${year}-${month}_${(formData.client).replace(' ', '-')}_${(formData.location).replace(' ', '-')}_${productFolderName}.indd`;
+                inddFileName = `${year}-${month}_${(formData.client).replace(' ', '-')}_${productFolderName}.indd`;
+            } else {
+                //name of the indesign file
+                inddFileName = `${year}-${month}_${(formData.client).replace(' ', '-')}_${(formData.location).replace(' ', '-')}_${productFolderName}.indd`;
+            };
 
                 let inddFilePath = path.join(globalSettings.pathToActiveFolder, parentDir, subDir, inddFileName);
 
@@ -852,6 +782,8 @@
             let doesExist = fs.existsSync(inddFilePath); //if indesign file already exists in path, returns true
             let secondTime = false;
 
+            console.log(`First Pass:\ninddFilePath: ${inddFilePath}\ntemplatePath: ${templatePath}\ndoesExist: ${doesExist}\nsecondTime: ${secondTime}\nopenTemplate: ${openTemplate}`);
+
             //sends path variables for template file, name for indesign file, and if file path exists or not already to the hostscript
             csInterface.evalScript(`openAndName("${inddFilePath}", "${templatePath}", ${doesExist}, ${secondTime}, ${openTemplate})`, (rtn, err) => {
                 if (err) {
@@ -859,6 +791,10 @@
                 } else {
                     //since I can only communicate from the jsx to here via strings, if I want to send multiple variables back I combine them into a single string separated by <0.o!> and then when it is over here I just split the string apart from said divider. 
                     let rtnValues = rtn.split("<0.o!>");
+
+                    if (rtnValues[1] == undefined) {
+                        rtnValues[1] = "null";
+                    };
 
                     //if the user was given a text prompt for a version in the jsx and they did not cancel out of it, this will pass ⬇
                     if (rtnValues[1] !== "null") {
@@ -893,6 +829,9 @@
                                 let doesExist = fs.existsSync(inddFilePath); //if indesign file already exists in path, returns true
 
                                 secondTime = true;
+
+                                console.log(`Second Pass:\ninddFilePath: ${inddFilePath}\ntemplatePath: ${templatePath}\ndoesExist: ${doesExist}\nsecondTime: ${secondTime}\nopenTemplate: ${openTemplate}`);
+
 
                                 csInterface.evalScript(`openAndName("${inddFilePath}", "${templatePath}", ${doesExist}, ${secondTime}, ${openTemplate})`, (rtn, err) => {
                                     if (err) {

@@ -1,16 +1,16 @@
 
 //#region TESTING VARIABLES --------------------------------------------------------------------------------------------------------------------------
 
-var inddFilePath = "/Users/mattshark/Library/CloudStorage/OneDrive-SharedLibraries-MailShark/Prepress Team - Documents/General/Artist Folders/Matt's_Files/Little-Nicky_Douglasville_27739/2023-02_SHIRT/2023-02_Little-Nicky_Douglasville_SHIRT.indd"
+// var inddFilePath = "/Users/mattshark/Library/CloudStorage/OneDrive-SharedLibraries-MailShark/Prepress Team - Documents/General/Artist Folders/Matt's_Files/Little-Nicky_Douglasville_27739/2023-03_MENU-VE/2023-03_Little-Nicky_Douglasville_MENU-VE.indd"
 
 // var templateFile = "/Users/mattshark/Library/Application Support/Adobe/CEP/extensions/com.mailshark.playground/downloaded-templates/Menu 2023.indt"
-var templateFile = "undefined";
+// // var templateFile = "undefined";
 
-// var answer = openAndName(inddFilePath, templateFile, false, false, true);
+// var answer = openAndName(inddFilePath, templateFile, false, true, true);
 
 // $.writeln(answer);
 
-showShirtDialog(inddFilePath, templateFile, false, false, false);
+// showShirtDialog();
 
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -28,12 +28,6 @@ showShirtDialog(inddFilePath, templateFile, false, false, false);
 
     var returnMessage;
 
-    var globalInddFilePath;
-    var globalTemplateFile;
-    var globalDoesExist;
-    var globalSecondTime;
-    var globalOpenTemplate;
-
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -44,6 +38,7 @@ function openAndName(inddFilePath, templateFile, doesExist, secondTime, openTemp
 
     //if file is not to be saved in previous function, byeBye is set to true and the function stops here, returning to the main.js the message
     if (byeBye == true) {
+        byeBye = false;
         return duplicatesMessage;
     };
 
@@ -60,6 +55,7 @@ function openAndName(inddFilePath, templateFile, doesExist, secondTime, openTemp
 
     //if there is no active document, byeBye will be set to true in the getActiveDoc function and doc will be set to a messae to send to main.js
     if (byeBye == true) {
+        byeBye = false;
         return doc;
     };
 
@@ -68,7 +64,7 @@ function openAndName(inddFilePath, templateFile, doesExist, secondTime, openTemp
 
     //if a version modifier was added to the file path, textPrompt will be true
     var message = saveReturn + "<0.o!>" + textPrompt; 
-    $.writeln(typeof message);
+    // $.writeln(typeof message);
     return message;
 
 };
@@ -85,18 +81,12 @@ function openAndName(inddFilePath, templateFile, doesExist, secondTime, openTemp
     {"activeId":5,"items":{"item-0":{"id":0,"type":"Dialog","parentId":false,"style":{"enabled":true,"varName":"shirtDialog","windowType":"Dialog","creationProps":{"su1PanelCoordinates":false,"maximizeButton":false,"minimizeButton":false,"independent":false,"closeButton":true,"borderless":false,"resizeable":false},"text":"T-Shirt Template Unavailable","preferredSize":[500,160],"margins":16,"orientation":"column","spacing":10,"alignChildren":["center","top"]}},"item-1":{"id":1,"type":"StaticText","parentId":0,"style":{"enabled":true,"varName":"problemDescription","creationProps":{},"softWrap":true,"text":"The project you submitted is categorized as a T-Shirt product. Currently, there are no T-Shirt templates available. ","justify":"center","preferredSize":[448,0],"alignment":null,"helpTip":""}},"item-2":{"id":2,"type":"Button","parentId":7,"style":{"enabled":true,"varName":"chooseTemplateButton","text":"Choose Template","justify":"center","preferredSize":[0,0],"alignment":"center","helpTip":null}},"item-3":{"id":3,"type":"Button","parentId":7,"style":{"enabled":true,"varName":"createBlankDocButton","text":"Create Blank Document","justify":"center","preferredSize":[0,0],"alignment":"center","helpTip":null}},"item-4":{"id":4,"type":"Group","parentId":0,"style":{"enabled":true,"varName":"buttonsText","preferredSize":[0,0],"margins":15,"orientation":"column","spacing":16,"alignChildren":["center","center"],"alignment":"fill"}},"item-5":{"id":5,"type":"Button","parentId":7,"style":{"enabled":true,"varName":"cancelButton","text":"Cancel","justify":"center","preferredSize":[0,0],"alignment":"center","helpTip":null}},"item-6":{"id":6,"type":"StaticText","parentId":4,"style":{"enabled":true,"varName":"callToAction","creationProps":{"truncate":"none","multiline":false,"scrolling":false},"softWrap":false,"text":"Would you like to choose a template to work from?","justify":"left","preferredSize":[0,0],"alignment":null,"helpTip":null}},"item-7":{"id":7,"type":"Group","parentId":4,"style":{"enabled":true,"varName":"buttons","preferredSize":[0,0],"margins":0,"orientation":"row","spacing":10,"alignChildren":["center","center"],"alignment":"center"}}},"order":[0,1,4,6,7,2,3,5],"settings":{"importJSON":true,"indentSize":false,"cepExport":false,"includeCSSJS":true,"showDialog":true,"functionWrapper":false,"afterEffectsDockable":false,"itemReferenceList":"None"}}
     */ 
 
-    function showShirtDialog(inddFilePath, templateFile, doesExist, secondTime, openTemplate) {
-
-        globalInddFilePath = inddFilePath;
-        globalTemplateFile = templateFile;
-        globalDoesExist = doesExist;
-        globalSecondTime = secondTime;
-        globalOpenTemplate = openTemplate;
+    function showShirtDialog(title, description1, description2, cta) {
 
         // SHIRTDIALOG
         // ===========
             shirtDialog = new Window("dialog"); 
-            shirtDialog.text = "T-Shirt Template Unavailable"; 
+            shirtDialog.text = "T-Shirt Template Unavailable"; //title
             shirtDialog.preferredSize.width = 500; 
             shirtDialog.preferredSize.height = 160; 
             shirtDialog.orientation = "column"; 
@@ -111,8 +101,8 @@ function openAndName(inddFilePath, templateFile, doesExist, secondTime, openTemp
             problemDescription.alignChildren = ["center","center"]; 
             problemDescription.spacing = 0; 
 
-            problemDescription.add("statictext", undefined, "The project you submitted is categorized as a T-Shirt product."); 
-            problemDescription.add("statictext", undefined, "Currently, there are no T-Shirt templates available. "); 
+            problemDescription.add("statictext", undefined, "The project you submitted is categorized as a T-Shirt product."); //description1
+            problemDescription.add("statictext", undefined, "Currently, there are no T-Shirt templates available. "); //description2
 
         // BUTTONSTEXT
         // ===========
@@ -124,7 +114,7 @@ function openAndName(inddFilePath, templateFile, doesExist, secondTime, openTemp
             buttonsText.alignment = ["fill","top"]; 
 
         var callToAction = buttonsText.add("statictext", undefined, undefined, {name: "callToAction"}); 
-            callToAction.text = "Would you like to choose a template to work from?"; 
+            callToAction.text = "Would you like to choose a template to work from?"; //cta
 
         // BUTTONS
         // =======
@@ -168,118 +158,17 @@ function openAndName(inddFilePath, templateFile, doesExist, secondTime, openTemp
             app.open(tempFile);
             returnMessage = "Template file opened";
         } else if (dialogResult == 2) {
-            shirtDialog.hide();
+            shirtDialog.close();
             // removeEvents();
             var createDoc = app.menuActions.itemByID(257).invoke();
-
-            /*
-            Code for Import https://scriptui.joonas.me — (Triple click to select): 
-            {"activeId":1,"items":{"item-0":{"id":0,"type":"Dialog","parentId":false,"style":{"enabled":true,"varName":null,"windowType":"Palette","creationProps":{"su1PanelCoordinates":false,"maximizeButton":false,"minimizeButton":false,"independent":false,"closeButton":true,"borderless":false,"resizeable":false},"text":"Dialog","preferredSize":[0,0],"margins":16,"orientation":"column","spacing":10,"alignChildren":["center","top"]}},"item-1":{"id":1,"type":"Button","parentId":0,"style":{"enabled":true,"varName":"btnSave","text":"Save","justify":"center","preferredSize":[0,0],"alignment":null,"helpTip":null}}},"order":[0,1],"settings":{"importJSON":true,"indentSize":false,"cepExport":false,"includeCSSJS":true,"showDialog":true,"functionWrapper":false,"afterEffectsDockable":false,"itemReferenceList":"None"}}
-            */ 
-
-            // PALETTE
-            // =======
-            var palette = new Window("palette"); 
-            palette.text = "Dialog"; 
-            palette.orientation = "column"; 
-            palette.alignChildren = ["center","top"]; 
-            palette.spacing = 10; 
-            palette.margins = 16; 
-
-            var btnSave = palette.add("button", undefined, undefined, {name: "btnSave"}); 
-                btnSave.text = "Save"; 
-
-                btnSave.onClick = function () {
-                    palette.close();
-                    app.activeDocument.save(globalInddFilePath);
-
-                }
-            palette.show();
-
-            // createDoc.addEventListener("afterInvoke", tryThisInstead);
-            // eventListener = app.addEventListener("afterNew", newFunction);
-            // alert("this should foire last");
-
-            returnMessage = "save me later";
-
-            // eventListener.remove();
-            // alert("eventListerner removed");
-    
-            // returnMessage = eventListener;
-
-
-            // await new Promise((resolve), function() {
-            //     app.menuActions.item("Document...").invoke()
-            //     $.writeln("shartFish");
-            //     returnMessage = "New document created";
-            // });
-
+            returnMessage = "New document created";
         };
-
-        // returnMessage
         $.writeln(returnMessage);
-       return returnMessage;
-
-    }
+        return returnMessage;
+    };
 
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
 
-function newFunction() {
-    // alert("Opened!");
-    var saveFile = confirm("Would you like to use the original SHIRT file to save and name the document? If you choose not to, the document will have no title and will not be saved.", false, "Save file?");
-
-    $.writeln("farts");
-
-    if (saveFile == false) {
-        doc.close(SaveOptions.NO);
-        returnMessage = "User cancelled. Exiting..."
-    } else {
-        // openAndName(globalInddFilePath, globalTemplateFile, globalDoesExist, globalSecondTime, globalOpenTemplate);
-        // $.sleep(10000) 
-
-        try {
-            // kCantSaveDocumentWithOpenTransactionError
-            // "Cannot save document because there are open transactions in process on the database."
-            // https://kb.priint.com/comet/ID_errorcodes.htm
-            // More info: https://community.adobe.com/t5/indesign-discussions/cannot-save-document-quot-treatment-in-progress-in-database-quot/m-p/10043501
-            // app.activeDocument.save(globalInddFilePath) // Why doesn't this work?
-            tryThisInstead();
-            return;
-
-        } catch (e) {
-            alert(e)
-        }
-
-        return;
-       
-
-        // returnMessage = "New document created";
-    };
-
-
-    // Basic path
-
-    // return returnMessage;
-
-};
-
-function tryThisInstead() {
-    // $.sleep(5000) 
-    // alert("I tried it, and it worked!")
-    try {
-       app.documents[app.documents.length - 1].save(globalInddFilePath); 
-        // app.activeDocument.save(globalInddFilePath) // Will this work?
-    } catch(e) {
-        alert(e);
-    };
-
-};
-
-
-function removeEvents() {
-    app.eventListeners.everyItem().remove();
-    alert(app.eventListeners.length);
-}
 
 /**
  * If the file path already exists in the folder, the user is prompted to choose a version modifier for the file path & name, which is sent back to the main.js. If the proposed file path is still already taken, the script comes back here and informs the user to try again from the beginning to avoid infinte loops in the code.
@@ -293,7 +182,7 @@ function checkForExistingFile(doesExist, secondTime) {
 
     if (doesExist == true) {
         if (secondTime == true) {
-            alert("Whoa! Looks like your proposed version folder already exists. Look at your project folder in your file system and then try using a version that is not yet taken in your folder.");
+            alert("Whoa! Looks like your proposed version folder already exists. Look at your project folder in your file system and then try using a version that is not yet taken in your folder." + "\n" + "The generated document was left opened and unsaved for your convenience. If you would like to use a generated file name for your project, please close the untitled document and try again using a different version identifier.");
             message = "User proposed a version folder that already exists in the directory. Preventing infinate loop by exiting function here until user can get it together and try again."
             message = message + "<0.o!>" + textPrompt; //message, null
             byeBye = true;
@@ -309,6 +198,7 @@ function checkForExistingFile(doesExist, secondTime) {
         } else {
             message = "The product template was successfully opened and saved into the " + textPrompt + " directory";
             message = message + "<0.o!>" + textPrompt //message, true
+            byeBye = true;
         }
     } else {
         message = "The document has been successfully named and saved."
@@ -327,12 +217,12 @@ function checkForExistingFile(doesExist, secondTime) {
 function save(doc, filePath, message) {
 
     try {doc.save(filePath) } catch (e) {
-        alert(e);
-        alert ("This document is currently open, so nothing was saved. Please close the document and try again.");
+        alert("ERROR WITH FILE:" + "\n" + e);
+        // alert ("Either this document is currently open or the file path doesn't exist, so nothing was saved. Please close the document and try again.");
         doc.close(SaveOptions.NO);
         return "Document with same name currently open. Close and try again."
     }
-    $.writeln(message);
+    // $.writeln(message);
     return message;
 }
 
