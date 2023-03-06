@@ -3,13 +3,18 @@
 <head>
 <meta charset="utf-8">
         
+<!-- <link href="css/select2.css" rel="stylesheet" type="text/css" /> -->
 <link id="ccstyleTheme" href="css/styles-dark.css" rel="stylesheet" type="text/css" />
 <link id="hostStyle" rel="stylesheet" href="css/styles.css"/>
+<link href="node_modules/chosen-js/chosen.min.css" rel="stylesheet" type="text/css" />
+
 
 <title></title>
 </head>
 
-<body require-nodejs class="hostElt">
+<body>
+<!-- <body require-nodejs class="hostElt"> -->
+
 
     <div id="content">        
          
@@ -55,7 +60,7 @@
                     />
                 </div>
 
-                <div id="sub-section">
+                <!-- <div id="sub-section">
                     <div id="label">
                         <label for="product">Product</label>
                     </div>
@@ -65,6 +70,20 @@
                         class="full-length"
                         value=""
                     />
+                </div> -->
+
+                <div id="sub-section">
+                    <div id="label">
+                        <label for="product">Product</label>
+                    </div>
+                    <select
+                        name="product"
+                        id="product"
+                        class="full-length"
+                        value=""
+                    >
+                        <option></option>
+                    </select>
                 </div>
                 
                 <div id="sub-section">
@@ -120,17 +139,22 @@
     
 
 
+    <script>
+        window.$ = window.jQuery = require('jquery');
+    </script>
+
     <script src="js/libs/CSInterface.js"></script>
     <script src="js/libs/jquery-2.0.2.min.js"></script>
+    <!-- <script src="js/libs/select2.js"></script> -->
+
 
     <script src="js/themecolors.js"></script>
 
     <script src="js/main.js"></script>
-
-    <script>
-
-
-    </script>
        
 </body>
+
+
+
+
 </html>

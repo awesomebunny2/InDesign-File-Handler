@@ -1,12 +1,12 @@
 
 //#region TESTING VARIABLES --------------------------------------------------------------------------------------------------------------------------
 
-// var inddFilePath = "/Users/mattshark/Library/CloudStorage/OneDrive-SharedLibraries-MailShark/Prepress Team - Documents/General/Artist Folders/Matt's_Files/Little-Nicky_Douglasville_27739/2023-03_MENU-VE/2023-03_Little-Nicky_Douglasville_MENU-VE.indd"
+// var inddFilePath = "/Users/mattshark/Library/CloudStorage/OneDrive-SharedLibraries-MailShark/Prepress Team - Documents/General/Artist Folders/Matt's_Files/Little-Nicky_Douglasville_27739/2023-03_ARTWORK/2023-03_Little-Nicky_Douglasville_ARTWORK.indd";
 
-// var templateFile = "/Users/mattshark/Library/Application Support/Adobe/CEP/extensions/com.mailshark.playground/downloaded-templates/Menu 2023.indt"
-// // var templateFile = "undefined";
+// // var templateFile = "/Users/mattshark/Library/Application Support/Adobe/CEP/extensions/com.mailshark.playground/downloaded-templates/Menu 2023.indt"
+// var templateFile = "undefined";
 
-// var answer = openAndName(inddFilePath, templateFile, false, true, true);
+// var answer = openAndName(inddFilePath, templateFile, false, false, false);
 
 // $.writeln(answer);
 
@@ -86,7 +86,7 @@ function openAndName(inddFilePath, templateFile, doesExist, secondTime, openTemp
         // SHIRTDIALOG
         // ===========
             shirtDialog = new Window("dialog"); 
-            shirtDialog.text = "T-Shirt Template Unavailable"; //title
+            shirtDialog.text = title; //title
             shirtDialog.preferredSize.width = 500; 
             shirtDialog.preferredSize.height = 160; 
             shirtDialog.orientation = "column"; 
@@ -101,8 +101,8 @@ function openAndName(inddFilePath, templateFile, doesExist, secondTime, openTemp
             problemDescription.alignChildren = ["center","center"]; 
             problemDescription.spacing = 0; 
 
-            problemDescription.add("statictext", undefined, "The project you submitted is categorized as a T-Shirt product."); //description1
-            problemDescription.add("statictext", undefined, "Currently, there are no T-Shirt templates available. "); //description2
+            problemDescription.add("statictext", undefined, description1); //description1
+            problemDescription.add("statictext", undefined, description2); //description2
 
         // BUTTONSTEXT
         // ===========
@@ -114,7 +114,7 @@ function openAndName(inddFilePath, templateFile, doesExist, secondTime, openTemp
             buttonsText.alignment = ["fill","top"]; 
 
         var callToAction = buttonsText.add("statictext", undefined, undefined, {name: "callToAction"}); 
-            callToAction.text = "Would you like to choose a template to work from?"; //cta
+            callToAction.text = cta; //cta
 
         // BUTTONS
         // =======

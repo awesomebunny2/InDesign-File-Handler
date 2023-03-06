@@ -6,6 +6,7 @@
     const path = require("path");
     const glob = require('glob');
     const https = require('https');
+    const chosen = require('chosen-js');
 
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -30,6 +31,8 @@
 
         var csInterface = new CSInterface();
 
+        $("#product").chosen();
+
         // if (globalSettings.firstTimeUse === true) {
         //     // Show Settings Dialog
         // }
@@ -50,7 +53,6 @@
 
 
         init();
-
 
     })();
 
@@ -118,6 +120,8 @@
                 // });
 
             //#endregion -----------------------------------------------------------------------------------------------------------------------------
+
+            tryCatch(updateDropdowns);
 
         };
 
@@ -226,7 +230,7 @@
                     }
                 };
 
-                if (!index) {
+                if (index == undefined) {
                     csInterface.evalScript(`alert("Something went wrong. It is most likely related to the product line feild. Please make sure the product in the Product Feild is a registered product in .net")`, (rtn, err) => {
                         if (err) {
                             console.log(err);
@@ -250,6 +254,8 @@
                 //name of the product in the template file names including the year and file extension
                 let fullTemplateName = `${productTemplateName} ${templateYear}.indt`;
 
+
+
                 if (productTemplateName == "SHIRT") {
 
                     title = "T-Shirt Template Unavailable";
@@ -257,35 +263,49 @@
                     description2 = "Currently, there are no T-Shirt templates available.";
                     cta = "Would you like to choose a template to work from?";
 
+                    csInterface.addEventListener('documentAfterActivate', handleOpen);
+
+                    noTemplateDialog(title, description1, description2, cta, formData, year, month, productFolderName);
+
+                } else if (productTemplateName == "NO DEFAULT") {
+                    
+                    title = "No Default Template";
+                    description1 = `There are no default templates set for ${productSystemName}. This typically means that`;
+                    description2 = "you are trying to work on a custom piece or some other non-printing form of artwork.";
+                    cta = "Would you like to choose a template to work from?";
+
+                    csInterface.addEventListener('documentAfterActivate', handleOpen);
+
+                    noTemplateDialog(title, description1, description2, cta, formData, year, month, productFolderName);
+
+                } else if (productTemplateName == "MARCOS") {
+                    title = "Marco's Project - Template Unavailable";
+                    description1 = "The project you submitted contains a product associated with Marco's Pizza.";
+                    description2 = "Since most Marco's pieces are based on files sent from corporate, there are no default templates set.";
+                    cta = "Would you like to choose a previous piece or template file to work from?";
+
+                    csInterface.addEventListener('documentAfterActivate', handleOpen);
+
+                    noTemplateDialog(title, description1, description2, cta, formData, year, month, productFolderName);
+
+                } else if (productTemplateName == "DUMPDUDEZ") {
+                    title = "Dumpster Dudez - Template Unavailable";
+                    description1 = "The project you submitted contains a product associated with Dumpster Dudez.";
+                    description2 = "Currently, there are no Dumpster Dudez templates available.";
+                    cta = "Would you like to choose a previous piece or template to work from?";
+
                     console.log("About to show shirt dialog");
 
                     csInterface.addEventListener('documentAfterActivate', handleOpen);
 
-                    await csInterface.evalScript(`showShirtDialog(${title}, ${description1}, ${description2}, ${cta})`, (rtn, err) => {
-                        if (err) {
-                            console.log(err);
-                            csInterface.evalScript(`alert("${err}")`, (rtn, err) => {
-                            });
-                            return;
-                        } else {
-                            console.log(rtn);
-                            if (rtn == "Cancelled") {
-                                console.log("User cancelled. Exiting...")
-                                return;
-                            } else if (rtn == "Template file opened") {
-                                console.log("Template was chosen manually.");
-                                noOpeningTemplate (formData, year, month, productFolderName);
-                                return;
-                            } else if (rtn == "New document created") {
-                                console.log("Create a new document was chosen.");
-                                handler = "CREATE";
-                                //the handleOpen event handler will trigger once the user submits the creat document dialog to run the noOpeningTemaplte function
-                                return;
-                            } else {
-                                alert("Something went terribly wrong...");
-                            }
-                        }
+                    noTemplateDialog(title, description1, description2, cta, formData, year, month, productFolderName);
+
+                } else if (productTemplateName == "IGNORE") {
+
+                    csInterface.evalScript(`alert("The project you submitted contains an unregonized product. Please update the product and try again.")`, (rtn, err) => {
                     });
+                    return;
+                    
                 } else if (productTemplateName) { //if productTemplateName has a value...
 
                     openTemplate = true;
@@ -586,8 +606,27 @@
 
  //#endregion ----------------------------------------------------------------------------------------------------------------------------------------
  
- 
- 
+ function updateDropdowns() {
+
+    $("#product").empty();
+    $("#product").append($("<option disabled selected hidden></option>").val("").text(""));
+
+    productTemplates.forEach(function(row) {
+
+        // Add an option to the select box
+        var option = `<option product-id="${row.system_name}" relative-product="${row.template_name}" product-code="${row.directory_name}">${row.system_name}</option>`;
+
+        //finds current relative-product in current option in the product dropdown and returns how many are currently in the dropdown
+        var x = $(`#product > option[relative-product="${row.system_name}"]`).length;
+
+        if (x == 0) { // Meaning, it's not there yet, because it's length count is 0
+            if (row.system_name !== "") { //if the relative-product in option is empty, do not add to list
+                $("#product").append(option);
+            };
+        };
+    });
+
+};
  
  
  //#region HELPER FUNCTIONS --------------------------------------------------------------------------------------------------------------------------
@@ -631,6 +670,35 @@
 
     //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
+
+    async function noTemplateDialog(title, description1, description2, cta, formData, year, month, productFolderName) {
+
+        await csInterface.evalScript(`showShirtDialog("${title}", "${description1}", "${description2}", "${cta}")`, (rtn, err) => {
+            if (err) {
+                console.log(err);
+                csInterface.evalScript(`alert("${err}")`, (rtn, err) => {
+                });
+                return;
+            } else {
+                console.log(rtn);
+                if (rtn == "Cancelled") {
+                    console.log("User cancelled. Exiting...")
+                    return;
+                } else if (rtn == "Template file opened") {
+                    console.log("Template was chosen manually.");
+                    noOpeningTemplate (formData, year, month, productFolderName);
+                    return;
+                } else if (rtn == "New document created") {
+                    console.log("Create a new document was chosen.");
+                    handler = "CREATE";
+                    //the handleOpen event handler will trigger once the user submits the creat document dialog to run the noOpeningTemaplte function
+                    return;
+                } else {
+                    alert("Something went terribly wrong...");
+                };
+            };
+        });
+    };
 
     async function typicalExecution (fullTemplateName, templateYear, productTemplateName, formData, year, month, productFolderName) {
 
@@ -858,5 +926,19 @@
         };
 
     //#endregion -----------------------------------------------------------------------------------------------------------------------------
+
+
+    async function tryCatch(callback) {
+        //console.log("Error callback type is: ");
+        //console.log(typeof callback);
+        //if (typeof callback === 'function') {
+            try {
+                await callback();
+            } catch (error) {
+                console.error(error);
+                showMessage(error, "show");
+
+            }
+    }
 
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
