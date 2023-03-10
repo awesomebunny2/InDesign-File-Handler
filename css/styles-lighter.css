@@ -923,7 +923,11 @@ form {
   margin-top: 10px;
 }
 
-
+#version {
+  font-size: 6pt;
+  font-style: italic;
+  margin-top: 7px;
+}
 
 /*themes*/
 /*Utilities*/

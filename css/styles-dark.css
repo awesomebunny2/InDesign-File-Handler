@@ -982,6 +982,12 @@ input:hover {
 .chosen-container-single .chosen-single abbr {
   top: 9px;
 }
+
+#version {
+  font-size: 6pt;
+  font-style: italic;
+  margin-top: 7px;
+}
 /*buttons*/
 
 /*fonts */

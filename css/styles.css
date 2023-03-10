@@ -49,3 +49,9 @@ by the settings of the CC application
     color:inherit;
     font-size:inherit;
 }
+
+#version {
+    font-size: 6pt;
+    font-style: italic;
+    margin-top: 7px;
+  }
