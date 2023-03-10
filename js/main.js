@@ -31,7 +31,7 @@
 
         var csInterface = new CSInterface();
 
-        $("#product").chosen();
+        // $("#product").chosen();
 
         // if (globalSettings.firstTimeUse === true) {
         //     // Show Settings Dialog
@@ -130,6 +130,10 @@
 //#endregion -------------------------------------------------------------------------------------------------------------------------------------
 
 //#region BUTTONS ------------------------------------------------------------------------------------------------------------------------------------
+
+$("#clear").on("click", () => {
+    $("#product").val("").trigger("chosen:updated");
+});
 
     //#region ON CREATE CLICK ------------------------------------------------------------------------------------------------------------------------
         /**
@@ -571,7 +575,7 @@
                         $("#location").val(theLocation);
                     };
 
-                    $("#product").val(theProduct);
+                    $("#product").val(theProduct).trigger("chosen:updated");
 
                     $("#client-code").val(theClientCode);
 
@@ -624,6 +628,14 @@
                 $("#product").append(option);
             };
         };
+    });
+
+    $("#product").chosen({
+        allow_single_deselect: true,
+        placeholder_text_single: " ",
+        inherit_select_classes: true,
+        no_results_text: "NO DEFAULT"
+        // rtl: true
     });
 
 };

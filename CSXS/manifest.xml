@@ -68,7 +68,7 @@
 					<Menu>InDesign Playground</Menu>
 					<Geometry>
 						<Size>
-							<Height>300</Height>
+							<Height>1000</Height>
 							<Width>300</Width>
 						</Size>
                     <!--<MinSize>
