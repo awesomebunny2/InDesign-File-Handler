@@ -599,10 +599,14 @@ $("#clear").on("click", () => {
                     $("#label-preview").text(`Your file will be saved as:`);
                     // REGEX: Looking for characters that break OneDrive and Dotnet. Looking for ",*,<,>,?,/,., and ,
                     // REGEX: /g means it will keep looking past the first match.
+
+                    /* Edit: This is the snippet from createDirectory():
+                    ${year}-${month}_${(formData.client).replace(' ', '-')}_${(formData.location).replace(' ', '-')}_${productFolderName}
+                    */
                     if (noBlanksArr.length > 3) {
-                        $("#file-field").text(`${theNowNow}-${currYear}_${theClient.replace(/["*:<>?\/.\,]/g,"").replace(/ /g, "-")}_${theLocation.replace(" ","-")}_${theProduct}_${theClientCode}_${theContract}_${theOrderLine}.indd`);
+                        $("#file-field").text(`${currYear}-${theNowNow}_${theClient.replace(/["*:<>?\/.\,]/g,"").replace(/ /g, "-")}_${theLocation.replace(" ","-")}_${theProduct}.indd`);
                     } else {
-                        $("#file-field").text(`${theNowNow}-${currYear}_${theClient.replace(/["*:<>?\/.\,]/g,"").replace(/ /g, "-")}_${theProduct}_${theClientCode}_${theContract}_${theOrderLine}.indd`);
+                        $("#file-field").text(`${currYear}-${theNowNow}_${theClient.replace(/["*:<>?\/.\,]/g,"").replace(/ /g, "-")}_${theProduct}.indd`);
                     }
                     
 
