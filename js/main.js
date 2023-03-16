@@ -27,6 +27,7 @@
 
     (function () {
 
+        console.log("Heyo");
         'use strict';
 
         var csInterface = new CSInterface();
@@ -132,7 +133,10 @@
 //#region BUTTONS ------------------------------------------------------------------------------------------------------------------------------------
 
 $("#clear").on("click", () => {
+    console.log("Clearing.")
     $("#product").val("").trigger("chosen:updated");
+    $("#file-field").text("").trigger("chosen:updated");
+    $("#label-preview").text("").trigger("chosen:updated");
 });
 
     //#region ON CREATE CLICK ------------------------------------------------------------------------------------------------------------------------
@@ -583,7 +587,24 @@ $("#clear").on("click", () => {
 
                     $("#order-line").val(theOrderLine);
 
-                    console.log("All feilds have been filled!");
+                    console.log("All fields have been filled!");
+
+                    // TO DO: This is where the field filling is fired. So here is where the preview needs to go.
+                    var theNow= new Date(); // Grabbing the Date.
+                    var theNowNow= theNow.getMonth()+1; // Grabbing the month. Adds 1 because January starts at 0.
+                    if (theNowNow < 10 ) theNowNow= `0${theNowNow}`; // If before October, stick a zero at the beginning of the month.
+                    var currYear= theNow.getFullYear();
+                    // Long String
+
+                    $("#label-preview").text(`Your file will be saved as:`);
+                    // REGEX: Looking for characters that break OneDrive and Dotnet. Looking for ",*,<,>,?,/,., and ,
+                    // REGEX: /g means it will keep looking past the first match.
+                    if (noBlanksArr.length > 3) {
+                        $("#file-field").text(`${theNowNow}-${currYear}_${theClient.replace(/["*:<>?\/.\,]/g,"").replace(/ /g, "-")}_${theLocation.replace(" ","-")}_${theProduct}_${theClientCode}_${theContract}_${theOrderLine}.indd`);
+                    } else {
+                        $("#file-field").text(`${theNowNow}-${currYear}_${theClient.replace(/["*:<>?\/.\,]/g,"").replace(/ /g, "-")}_${theProduct}_${theClientCode}_${theContract}_${theOrderLine}.indd`);
+                    }
+                    
 
                     //  if (match == undefined) {
                     //      console.log("Product is undefined...");

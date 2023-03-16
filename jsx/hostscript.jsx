@@ -30,7 +30,6 @@
 
 //#endregion -----------------------------------------------------------------------------------------------------------------------------------------
 
-
 function openAndName(inddFilePath, templateFile, doesExist, secondTime, openTemplate) {
 
     //bring up text prompt if file path already exists. Also sets byeBye to true if file is not to be saved.
